@@ -1,0 +1,53 @@
+- fail: msg="no nic is defined"
+  when: "nics | length == 0"
+
+- name: install packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+  - dpdk
+  - dpdk-tools
+  - driverctl
+  - tuned-profiles-cpu-partitioning
+
+- set_fact: "pci_addresses={{ nics | get_pci_addresses}}"
+
+- set_fact: "cpu_list={{ nics | get_cpu_list}}"
+
+- set_fact: "nics_per_numa={{ nics | get_nics_per_numa}}"
+
+- name: print nics per numa
+  debug:
+    msg: "nics_per_numa={{ nics | get_nics_per_numa}}"
+
+- name: add isolated cpus to tuned
+  lineinfile:
+    path: /etc/tuned/cpu-partitioning-variables.conf
+    regexp: "^isolated_cores=.*"
+    line: "isolated_cores={{ cpu_list }}"
+  register: isolated_cores
+
+- name: select the cpu-partitioning tuned profile
+  command: tuned-adm profile cpu-partitioning
+  when: isolated_cores.changed
+  register: grub_isolated_cores
+
+- name: add iommu to grub
+  lineinfile:
+    state: present
+    path: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX=(?!.*iommu=pt intel_iommu=on)\"[^\"]+)(\".*)'
+    line: '\1 iommu=pt intel_iommu=on\2'
+    backrefs: yes
+  register: grub_iommu
+
+- name: update grub
+  shell: "grub2-mkconfig -o /boot/grub2/grub.cfg"
+  when: grub_isolated_cores.changed or grub_iommu.changed
+  register: update_grub
+
+- name: bind nic to dpdk permanently
+  command: "driverctl -v set-override {{ item }} {{ kernel_module }}"
+  with_items: "{{ pci_addresses }}"
+

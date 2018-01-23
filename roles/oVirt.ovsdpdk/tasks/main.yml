@@ -1,0 +1,35 @@
+- name: set dpdk-init
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-init
+    value: true
+
+- set_fact: "pmd_cpu_mask={{ pmd_cores | get_core_mask }}"
+
+- set_fact: "dpdk_lcore_mask={{ dpdk_lcore_cores | get_core_mask }}"
+
+- name: set pmd-cpu-mask
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-cpu-mask
+    value: "{{ pmd_cpu_mask }}"
+
+- name: set dpdk-socket-mem
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-socket-mem
+    value: "{{ dpdk_socket_mem }}"
+
+- name: set dpdk lcore mask
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-lcore-mask
+    value: "{{ dpdk_lcore_mask }}"

@@ -1,0 +1,3 @@
+nics: []
+kernel_module: vfio-pci
+

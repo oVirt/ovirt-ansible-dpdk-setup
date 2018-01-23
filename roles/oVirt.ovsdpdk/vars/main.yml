@@ -1,0 +1,3 @@
+dpd_lcore_cores: [1,2]
+pmd_cores: [3,4]
+dpdk_socket_mem: "1024"
