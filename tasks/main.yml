@@ -1,0 +1,7 @@
+- name: Deploy DPDK
+    include role:
+      name: "oVirt.dpdk"
+
+- name: Deploy OVS-DPKD
+    include role:
+      name: "oVirt.ovsdpdk"
