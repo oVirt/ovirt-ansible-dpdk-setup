@@ -1,0 +1,6 @@
+---
+- hosts: all
+  remote_user: root
+  roles:
+  - oVirt.dpdk
+  - oVirt.ovsdpdk
