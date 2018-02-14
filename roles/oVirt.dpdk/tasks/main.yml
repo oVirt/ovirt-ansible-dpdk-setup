@@ -15,11 +15,37 @@
 
 - set_fact: "cpu_list={{ nics | get_cpu_list}}"
 
-- set_fact: "nics_per_numa={{ nics | get_nics_per_numa}}"
+- set_fact: "nics_numa_info={{ nics | get_dpdk_nics_numa_info}}"
 
 - name: print nics per numa
   debug:
-    msg: "nics_per_numa={{ nics | get_nics_per_numa}}"
+    msg: "nics_numa_info={{ nics | get_dpdk_nics_numa_info}}"
+
+- name: check if 1GB hugepages are enabled
+  shell: grep -q pdpe1gb /proc/cpuinfo
+  register: is_1gb_enabled
+  changed_when: "is_1gb_enabled.rc == 0"
+  failed_when: "is_1gb_enabled.rc == 2"
+
+- name: add 1GB hugepages to grub
+  lineinfile:
+    state: present
+    dest: /etc/default/grub
+    backrefs: "yes"
+    regexp: '^(GRUB_CMDLINE_LINUX=(?!.*default_hugepagesz=1G hugepagesz=1G hugepages={{ nr_1g_hugepages }})\"[^\"]+)(\".*)'
+    line: '\1 default_hugepagesz=1G hugepagesz=1G hugepages={{ nr_1g_hugepages }}\2'
+  when: is_1gb_enabled.changed
+  register: grub_hugepages
+
+- name: add 2M hugepages to grub when 1GB hugepages not supported
+  lineinfile:
+    state: present
+    dest: /etc/default/grub
+    backrefs: "yes"
+    regexp: '^(GRUB_CMDLINE_LINUX=(?!.*hugepages={{ nr_2m_hugepages }})\"[^\"]+)(\".*)'
+    line: '\1 hugepages={{ nr_2m_hugepages }}\2'
+  when: not is_1gb_enabled.changed
+  register: grub_hugepages
 
 - name: add isolated cpus to tuned
   lineinfile:
@@ -44,7 +70,7 @@
 
 - name: update grub
   shell: "grub2-mkconfig -o /boot/grub2/grub.cfg"
-  when: grub_isolated_cores.changed or grub_iommu.changed
+  when: grub_hugepages.changed or grub_isolated_cores.changed or grub_iommu.changed
   register: update_grub
 
 - name: bind nic to dpdk permanently
