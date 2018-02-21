@@ -12,6 +12,8 @@
 
 - set_fact: "dpdk_lcore_mask={{ pmd_cores | get_dpdk_lcores(cpu_list) | get_core_mask }}"
 
+- set_fact: "dpdk_socket_mem={{ nics_numa_info | get_socket_mem }}"
+
 - name: set pmd-cpu-mask
   openvswitch_db:
     table: open_vswitch
