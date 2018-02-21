@@ -1,7 +1,7 @@
 - name: Deploy DPDK
-  include role:
-          name: "oVirt.dpdk-setup/roles/oVirt.dpdk"
+  include_role:
+    name: "oVirt.dpdk-setup/roles/oVirt.dpdk"
 
 - name: Deploy OVS-DPKD
-  include role:
+  include_role:
     name: "oVirt.dpdk-setup/roles/oVirt.ovsdpdk"
