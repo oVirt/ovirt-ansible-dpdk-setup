@@ -1,3 +1,5 @@
 nics: []
 kernel_module: vfio-pci
+nr_1g_hugepages: 4
+nr_2m_hugepages: 256
 
