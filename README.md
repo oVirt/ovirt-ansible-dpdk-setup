@@ -7,6 +7,27 @@ The `oVirt.dpdk-setup` role enables you to set up Open vSwitch with DPDK support
 Requirements:
 ------------
 
-* Ansible version 2.4
+* Ansible version 2.4 or higher
 * NICS must support DPDK
 * Hardware support: Make sure VT-d / AMD-Vi is enabled in BIOS
+
+
+Role Variables
+--------------
+
+| Name                    | Default value         |                                                     |
+|-------------------------|-----------------------|-----------------------------------------------------|
+| nics                    | []                    | List of nics to bind to dpdk.                       |
+| kernel_module           | vfio-pci              | Kernel module for PMD.                              |
+| nr_1g_hugepages         | 4                     | Number of 1GB hugepages.                            |
+| nr_2m_hugepages         | 256                   | Number of 2MB hugepages.                            |
+
+Dependencies
+------------
+
+No.
+
+License
+-------
+
+Apache License 2.0
