@@ -27,6 +27,23 @@ Dependencies
 
 No.
 
+Example Playbook
+----------------
+
+```yaml
+---
+- name: oVirt DPDK setup
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    nics: [eth1]
+  
+  roles:
+    - oVirt.dpdk-setup
+```
+
+
 License
 -------
 
