@@ -73,6 +73,19 @@
   when: grub_hugepages.changed or grub_isolated_cores.changed or grub_iommu.changed
   register: update_grub
 
+- name: restart server
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  become: true
+  ignore_errors: true
+  when: update_grub.changed
+
+- name: Wait for host to come back
+  wait_for_connection:
+    timeout: 600
+  when: update_grub.changed
+
 - name: bind nic to dpdk permanently
   command: "driverctl -v set-override {{ item }} {{ kernel_module }}"
   with_items: "{{ pci_addresses }}"
