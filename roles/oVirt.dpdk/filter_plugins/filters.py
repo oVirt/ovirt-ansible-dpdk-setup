@@ -8,6 +8,7 @@ class FilterModule(object):
             'get_pci_addresses': self.get_pci_addresses,
             'get_cpu_list': self.get_cpu_list,
             'get_dpdk_nics_numa_info': self.get_dpdk_nics_numa_info,
+            'get_kernel_driver': self.get_kernel_driver,
         }
 
     def _get_pci_address(self, nic):
@@ -34,6 +35,21 @@ class FilterModule(object):
         proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
         output, error = proc.communicate()
         return output
+
+    def _get_kernel_driver(self, pci_address):
+        lspci_proc = subprocess.Popen(
+                "lspci -v -s {}".format(pci_address).split(),
+                stdout=subprocess.PIPE)
+        grep_proc = subprocess.Popen(
+                "grep modules:".split(),
+                stdin=lspci_proc.stdout,
+                stdout=subprocess.PIPE)
+        cut_proc = subprocess.Popen(
+                "cut -d: -f2".split(),
+                stdin=grep_proc.stdout,
+                stdout=subprocess.PIPE)
+        output, error = cut_proc.communicate()
+        return output.strip()
 
     def _is_first_core_zero(self, cores):
         return cores[:1] == '0'
@@ -81,3 +97,6 @@ class FilterModule(object):
                     self._get_nic_cpus_without_zero_core(nic)
 
         return nics_per_numa
+
+    def get_kernel_driver(self, pci_addresses):
+        return self._get_kernel_driver(pci_addresses[0])
