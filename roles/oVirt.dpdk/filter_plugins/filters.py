@@ -70,6 +70,8 @@ class FilterModule(object):
         nics_per_numa = {}
         for nic in nics:
             numa_node = int(self._get_numa_node(nic))
+            if numa_node == -1:
+                numa_node = 0
             if numa_node in nics_per_numa:
                 nics_per_numa[numa_node]['nics'] += 1
             else:
