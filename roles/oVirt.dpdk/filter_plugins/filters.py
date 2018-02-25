@@ -9,6 +9,7 @@ class FilterModule(object):
             'get_cpu_list': self.get_cpu_list,
             'get_dpdk_nics_numa_info': self.get_dpdk_nics_numa_info,
             'get_kernel_driver': self.get_kernel_driver,
+            'get_nics_by_pci_addresses': self.get_nics_by_pci_addresses,
         }
 
     def _get_pci_address(self, nic):
@@ -50,6 +51,15 @@ class FilterModule(object):
                 stdout=subprocess.PIPE)
         output, error = cut_proc.communicate()
         return output.strip()
+
+    def _get_interface_name(self, pci_address):
+        proc = subprocess.Popen(
+                "ls -la /sys/bus/pci/devices/{}/net/".format(
+                    pci_address).split(),
+                stdout=subprocess.PIPE)
+        output, error = proc.communicate()
+        interface_name = output.split()[-1]
+        return interface_name
 
     def _is_first_core_zero(self, cores):
         return cores[:1] == '0'
@@ -100,3 +110,11 @@ class FilterModule(object):
 
     def get_kernel_driver(self, pci_addresses):
         return self._get_kernel_driver(pci_addresses[0])
+
+    def get_nics_by_pci_addresses(self, pci_addresses):
+        nics = []
+        for pci_address in pci_addresses:
+            nic = self._get_interface_name(pci_address)
+            nics.append(nic)
+
+        return nics
