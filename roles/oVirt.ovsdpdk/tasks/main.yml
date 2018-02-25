@@ -32,3 +32,8 @@
 
 - name: set dpdk-socket-mem
   command: "ovs-vsctl --no-wait set open_vswitch . other_config:dpdk-socket-mem=\"{{ dpdk_socket_mem }}\""
+
+- name: restart openvswitch service
+  service: openvswitch
+    state: restarted
+
