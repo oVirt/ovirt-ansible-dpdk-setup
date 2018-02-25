@@ -22,14 +22,6 @@
     key: pmd-cpu-mask
     value: "{{ pmd_cpu_mask }}"
 
-- name: set dpdk-socket-mem
-  openvswitch_db:
-    table: open_vswitch
-    record: .
-    col: other_config
-    key: dpdk-socket-mem
-    value: "{{ dpdk_socket_mem }}"
-
 - name: set dpdk lcore mask
   openvswitch_db:
     table: open_vswitch
@@ -37,3 +29,6 @@
     col: other_config
     key: dpdk-lcore-mask
     value: "{{ dpdk_lcore_mask }}"
+
+- name: set dpdk-socket-mem
+  command: "ovs-vsctl --no-wait set open_vswitch . other_config:dpdk-socket-mem=\"{{ dpdk_socket_mem }}\""
