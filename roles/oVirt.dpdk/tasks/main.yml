@@ -12,17 +12,6 @@
   - driverctl
   - tuned-profiles-cpu-partitioning
 
-- set_fact: "network_driver={{ pci_addresses | get_kernel_driver}}"
-  when: "nics | length == 0"
-
-- name: bind nics back to network driver
-  command: "driverctl -v set-override {{ item }} {{ network_driver }}"
-  with_items: "{{ pci_addresses }}"
-  register: bind_regular
-
-- set_fact: "nics={{ pci_addresses | get_nics_by_pci_addresses}}"
-  when: bind_regular.changed
-
 - set_fact: "pci_addresses={{ nics | get_pci_addresses}}"
 
 - set_fact: "cpu_list={{ nics | get_cpu_list}}"
