@@ -17,7 +17,7 @@ Role Variables
 
 | Name                    | Default value         |                                                     |
 |-------------------------|-----------------------|-----------------------------------------------------|
-| nics                    | []                    | List of nics to bind to dpdk.                       |
+| nics                    | [ ]                   | List of nics to bind to dpdk.                       |
 | kernel_module           | vfio-pci              | Kernel module for PMD.                              |
 | nr_1g_hugepages         | 4                     | Number of 1GB hugepages.                            |
 | nr_2m_hugepages         | 256                   | Number of 2MB hugepages.                            |
@@ -33,7 +33,7 @@ Example Playbook
 ```yaml
 ---
 - name: oVirt DPDK setup
-  hosts: localhost
+  hosts: some_host
   gather_facts: false
 
   vars:
@@ -43,6 +43,21 @@ Example Playbook
     - oVirt.dpdk-setup
 ```
 
+System CleanupPlaybook
+----------------
+
+```yaml
+---
+- name: clean oVirt DPDK setup
+  hosts: some_host
+  gather_facts: false
+
+  vars:
+    pci_addresses: [<pci_address>]
+  
+  roles:
+    - "oVirt.dpdk-setup/roles/cleanup_system"
+`
 
 License
 -------
