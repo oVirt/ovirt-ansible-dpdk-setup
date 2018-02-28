@@ -5,6 +5,7 @@ import subprocess
 class FilterModule(object):
     def filters(self):
         return {
+            'devices_exist', self.devices_exist,
             'get_pci_addresses': self.get_pci_addresses,
             'get_cpu_list': self.get_cpu_list,
             'get_dpdk_nics_numa_info': self.get_dpdk_nics_numa_info,
@@ -61,6 +62,10 @@ class FilterModule(object):
         if self._is_first_core_zero(local_cpu_list):
             local_cpu_list = self._remove_first_core(local_cpu_list)
         return local_cpu_list
+
+    def devices_exist(self, nics):
+        return all(os.path.isdir(os.path.join('/sys/class/net', nic)) \
+                for nic in nics)
 
     def get_cpu_list(self, nics):
         cores = []
