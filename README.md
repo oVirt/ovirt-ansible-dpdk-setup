@@ -43,7 +43,7 @@ Example Playbook
     - oVirt.dpdk-setup
 ```
 
-System CleanupPlaybook
+OVS-DPDK Deployment Removal Playbook
 ----------------
 
 ```yaml
