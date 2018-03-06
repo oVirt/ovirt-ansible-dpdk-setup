@@ -56,7 +56,7 @@ System CleanupPlaybook
     pci_addresses: [<pci_address>]
   
   roles:
-    - "oVirt.dpdk-setup/roles/cleanup_system"
+    - "oVirt.dpdk-setup/roles/undeploy-ovsdpdk"
 `
 
 License
