@@ -5,7 +5,7 @@ import subprocess
 class FilterModule(object):
     def filters(self):
         return {
-            'devices_exist', self.devices_exist,
+            'devices_exist': self.devices_exist,
             'get_pci_addresses': self.get_pci_addresses,
             'get_cpu_list': self.get_cpu_list,
             'get_dpdk_nics_numa_info': self.get_dpdk_nics_numa_info,
