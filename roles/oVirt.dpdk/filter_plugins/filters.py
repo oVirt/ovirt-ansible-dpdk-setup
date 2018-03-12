@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import os
 import subprocess
 
 
@@ -32,7 +33,10 @@ class FilterModule(object):
         return output
 
     def _get_numa_node(self, nic):
-        cmd = "cat /sys/class/net/{}/device/numa_node".format(nic)
+        numa_path = '/sys/class/net/{}/device/numa_node'.format(nic)
+        if not os.path.isfile(numa_path):
+            return -1
+        cmd = 'cat {}'.format(numa_path)
         proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
         output, error = proc.communicate()
         return output
