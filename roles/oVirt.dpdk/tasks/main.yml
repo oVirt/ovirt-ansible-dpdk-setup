@@ -31,6 +31,7 @@
 - name: add 1GB hugepages to grub
   lineinfile:
     state: present
+    create: yes
     dest: /etc/default/grub
     backrefs: "yes"
     regexp: '^(GRUB_CMDLINE_LINUX=(?!.*default_hugepagesz=1G hugepagesz=1G hugepages={{ nr_1g_hugepages }})\"[^\"]+)(\".*)'
