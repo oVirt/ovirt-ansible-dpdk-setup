@@ -58,11 +58,6 @@
   shell: grubby --args="iommu=pt intel_iommu=on" --update-kernel {{ default_kernel.stdout_lines[0] }}
   register: grub_iommu
 
-- name: update grub
-  shell: "grub2-mkconfig -o /boot/grub2/grub.cfg"
-  when: grub_hugepages.changed or grub_isolated_cores.changed or grub_iommu.changed
-  register: update_grub
-
 - name: restart server
   shell: sleep 2 && shutdown -r now "Ansible updates triggered"
   async: 1
