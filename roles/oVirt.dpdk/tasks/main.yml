@@ -1,5 +1,5 @@
 - fail: msg="no nic is defined"
-  when: "nics | length == 0"
+  when: "nics_addresses | length == 0"
 
 - name: install packages
   yum:
@@ -12,15 +12,13 @@
   - driverctl
   - tuned-profiles-cpu-partitioning
 
-- set_fact: "pci_addresses={{ nics | get_pci_addresses}}"
+- set_fact: "cpu_list={{ nics_addresses | get_cpu_list}}"
 
-- set_fact: "cpu_list={{ nics | get_cpu_list}}"
-
-- set_fact: "nics_numa_info={{ nics | get_dpdk_nics_numa_info}}"
+- set_fact: "nics_numa_info={{ nics_addresses | get_dpdk_nics_numa_info}}"
 
 - name: print nics per numa
   debug:
-    msg: "nics_numa_info={{ nics | get_dpdk_nics_numa_info}}"
+    msg: "nics_numa_info={{ nics_addresses | get_dpdk_nics_numa_info}}"
 
 - name: register default kernel
   shell: grubby --default-kernel
@@ -58,18 +56,18 @@
   shell: grubby --args="iommu=pt intel_iommu=on" --update-kernel {{ default_kernel.stdout_lines[0] }}
   register: grub_iommu
 
-- name: restart server
-  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
-  async: 1
-  poll: 0
-  become: true
-  ignore_errors: true
-  when: update_grub.changed
+- debug: msg="{{kernel_module}} {{pci_addresses}}"
 
-- name: Wait for host to come back
-  wait_for_connection:
-    timeout: 600
-  when: update_grub.changed
+# - name: restart server
+#   shell: sleep 5 && shutdown -r now "Ansible updates triggered"
+#   async: 0
+#   poll: 0
+#   become: true
+#   ignore_errors: true
+
+# - name: Wait for host to come back
+#   wait_for_connection:
+#     timeout: 600
 
 - name: bind nic to dpdk permanently
   command: "driverctl -v set-override {{ item }} {{ kernel_module }}"
