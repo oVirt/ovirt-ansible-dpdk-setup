@@ -17,10 +17,11 @@ Role Variables
 
 | Name                    | Default value         |                                                     |
 |-------------------------|-----------------------|-----------------------------------------------------|
-| nics                    | [ ]                   | List of nics to bind to dpdk.                       |
-| kernel_module           | vfio-pci              | Kernel module for PMD.                              |
-| nr_1g_hugepages         | 4                     | Number of 1GB hugepages.                            |
-| nr_2m_hugepages         | 256                   | Number of 2MB hugepages.                            |
+| pci_drivers             |                       | PCI address to driver mapping. |
+| configure_kernel        | true                  | Determines whether the kernel should be configured for DPDK usage. |
+| bind_drivers            | true                  | Determines whether drivers should be bound to the the devices. |
+| set_ovs                 | true                  | Determines whether OVS should be configured and started. |
+
 
 Dependencies
 ------------
@@ -37,27 +38,14 @@ Example Playbook
   gather_facts: false
 
   vars:
-    nics: [eth1]
+    pci_drivers:
+      "0000:00:04.0": "vfio-pci"
+      "0000:00:04.1": "igb"
+      "0000:00:04.2": ""
   
   roles:
     - oVirt.dpdk-setup
 ```
-
-OVS-DPDK Deployment Removal Playbook
-----------------
-
-```yaml
----
-- name: clean oVirt DPDK setup
-  hosts: some_host
-  gather_facts: false
-
-  vars:
-    pci_addresses: [<pci_address>]
-  
-  roles:
-    - "oVirt.dpdk-setup/roles/undeploy-ovsdpdk"
-`
 
 License
 -------

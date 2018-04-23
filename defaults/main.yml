@@ -1,0 +1,4 @@
+---
+configure_kernel: true
+bind_drivers: true
+set_ovs: true

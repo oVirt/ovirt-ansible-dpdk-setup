@@ -1,7 +1,10 @@
 ---
 - hosts: localhost
-  remote_user: root
   vars:
-    nics: [eth1]
+    pci_drivers:
+      "0000:02:00.1": "vfio-pci"
+      "0000:02:00.2": "igb"
+      "0000:02:00.3": ""
+    configure_kernel: false
   roles:
-    oVirt.dpdk-setup
+    - oVirt.dpdk-setup
