@@ -1,4 +1,3 @@
-oVirt DPDK Setup
 ================
 
 The `oVirt.dpdk-setup` role enables you to set up Open vSwitch with DPDK support.
@@ -17,10 +16,8 @@ Role Variables
 
 | Name                    | Default value         |                                                     |
 |-------------------------|-----------------------|-----------------------------------------------------|
-| nics                    | [ ]                   | List of nics to bind to dpdk.                       |
-| kernel_module           | vfio-pci              | Kernel module for PMD.                              |
-| nr_1g_hugepages         | 4                     | Number of 1GB hugepages.                            |
-| nr_2m_hugepages         | 256                   | Number of 2MB hugepages.                            |
+| pci_addresses           | [ ]                   | PCI addresses of the devices to use DPDK with.      |
+
 
 Dependencies
 ------------
@@ -37,27 +34,11 @@ Example Playbook
   gather_facts: false
 
   vars:
-    nics: [eth1]
+    pci_addresses: ['0000:00:04.0']
   
   roles:
     - oVirt.dpdk-setup
 ```
-
-OVS-DPDK Deployment Removal Playbook
-----------------
-
-```yaml
----
-- name: clean oVirt DPDK setup
-  hosts: some_host
-  gather_facts: false
-
-  vars:
-    pci_addresses: [<pci_address>]
-  
-  roles:
-    - "oVirt.dpdk-setup/roles/undeploy-ovsdpdk"
-`
 
 License
 -------

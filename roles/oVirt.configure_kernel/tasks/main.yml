@@ -1,0 +1,31 @@
+- name: install packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+  - pciutils
+  - dpdk
+  - dpdk-tools
+  - driverctl
+  - tuned-profiles-cpu-partitioning
+
+- name: configure kernel
+  configure_kernel:
+    pci_addresses: "{{ pci_addresses }}"
+  register: configure_kernel
+
+- name: restart server
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  poll: 0
+  become: true
+  ignore_errors: true
+  when: configure_kernel.changed
+
+- name: allow host to restart before proceeding
+  pause: seconds=2
+  when: configure_kernel.changed
+
+- name: Wait for host to come back
+  wait_for_connection:
+    timeout: 600

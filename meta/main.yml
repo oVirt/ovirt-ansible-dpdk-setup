@@ -1,6 +1,6 @@
 galaxy_info:
-  author: Irit Goihman
-  description: Role to set up OpenVswitch with DPDK support.
+  author: Irit Goichman, Leon Goldberg
+  description: A role for configuring and deploying OVS-DPDK.
   company: Red Hat, Inc.
 
   license: Apache License 2.0

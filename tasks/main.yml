@@ -1,7 +1,11 @@
-- name: Deploy DPDK
+- name: configure kernel
   include_role:
-    name: "oVirt.dpdk-setup/roles/oVirt.dpdk"
+    name: "oVirt.dpdk-setup/roles/oVirt.configure_kernel"
 
-- name: Deploy OVS-DPKD
+- name: bind devices to vfio
   include_role:
-    name: "oVirt.dpdk-setup/roles/oVirt.ovsdpdk"
+    name: "oVirt.dpdk-setup/roles/oVirt.bind_to_vfio"
+
+- name: set ovs
+  include_role:
+    name: "oVirt.dpdk-setup/roles/oVirt.set_ovs"

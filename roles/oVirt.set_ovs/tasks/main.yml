@@ -1,0 +1,15 @@
+- name: install ovs
+  yum:
+    name: openvswitch
+    state: installed
+
+- name: start ovs
+  service:
+    name: openvswitch
+    state: started
+
+- name: set dpdk-socket-mem
+  command: "ovs-vsctl --no-wait set open_vswitch . other_config:dpdk-socket-mem=512"
+
+- name: start dpdk
+  command: "ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true"
