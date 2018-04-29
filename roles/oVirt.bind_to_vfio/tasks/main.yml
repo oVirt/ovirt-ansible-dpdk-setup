@@ -1,0 +1,3 @@
+- name: bind devices to vfio
+  bind_to_vfio:
+    pci_addresses: "{{ pci_addresses}}"
