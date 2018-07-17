@@ -182,7 +182,7 @@ def _add_iommu(kernel):
         return False
 
     rc, _, err = exec_cmd(['grubby', '--args=iommu=pt intel_iommu=on',
-                            '--update-kernel={}'.format(kernel)])
+                           '--update-kernel={}'.format(kernel)])
     if rc != 0:
         raise UpdateKernelError(err)
     return True
