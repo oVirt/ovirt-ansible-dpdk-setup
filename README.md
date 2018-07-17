@@ -19,7 +19,7 @@ Role Variables
 |-------------------------|-----------------------|-----------------------------------------------------|
 | pci_drivers             |                       | PCI address to driver mapping. |
 | configure_kernel        | true                  | Determines whether the kernel should be configured for DPDK usage. |
-| bind_drivers            | true                  | Determines whether drivers should be bound to the the devices. |
+| bind_drivers            | true                  | Determines whether drivers should be bound to the devices. |
 | set_ovs                 | true                  | Determines whether OVS should be configured and started. |
 
 
