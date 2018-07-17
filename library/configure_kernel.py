@@ -193,18 +193,6 @@ def _is_iommu_set():
     return 'iommu=pt' in kernel_args and 'intel_iommu=on' in kernel_args
 
 
-def _using_virtio(addr):
-    out = subprocess.check_output(['lspci'])
-
-    devices = out.split('\n')
-    for device in devices:
-        short_addr, info = device.split(' ', 1)
-        if addr.split(':', 1)[1] == short_addr:
-            return 'Virtio' in info
-
-    raise Exception('Could not determine device type @ {}'.format(addr))
-
-
 def _configure_kernel(pci_addresses):
     cpu_list = _get_cpu_list(pci_addresses)
     default_kernel = _get_default_kernel()
