@@ -1,0 +1,12 @@
+- name: install packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+    disable_gpg_check: yes
+  with_items:
+  - pciutils
+  - driverctl
+
+- name: bind devices to drivers
+  bind_drivers:
+    pci_drivers: "{{ pci_drivers }}"

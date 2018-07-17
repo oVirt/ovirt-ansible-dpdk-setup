@@ -1,6 +1,6 @@
 galaxy_info:
-  author: Irit Goihman
-  description: Role to set up OpenVswitch with DPDK support.
+  author: Irit Goihman, Leon Goldberg
+  description: Setup DPDK compatible NIC's to use DPDK via Open vSwitch.
   company: Red Hat, Inc.
 
   license: Apache License 2.0
