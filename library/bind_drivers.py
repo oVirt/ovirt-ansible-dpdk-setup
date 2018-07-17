@@ -68,9 +68,7 @@ def _using_virtio(addr):
     for device in devices:
         short_addr, info = device.split(' ', 1)
         if addr.split(':', 1)[1] == short_addr:
-            if 'Virtio' in info:
-                return True
-            return False
+            return 'Virtio' in info
 
     raise Exception('Could not determine device type @ {}'.format(addr))
 
