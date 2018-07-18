@@ -51,6 +51,8 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.dpdk_setup_common import exec_cmd
+from ansible.module_utils.dpdk_setup_common import get_cpu_list
+from ansible.module_utils.dpdk_setup_common import DPDK_DRIVERS
 
 
 class ReadKernelArgsError(Exception):
@@ -63,45 +65,6 @@ class UpdateKernelError(Exception):
 
 class SelectCpuPartitioningError(Exception):
     pass
-
-
-def _get_cpu_list(pci_addresses):
-    cores = []
-    for addr in pci_addresses:
-        local_cpu_list = _get_nic_cpus_without_zero_core(addr)
-        if local_cpu_list not in cores:
-            cores.append(local_cpu_list)
-    return ','.join(cores)
-
-
-def _get_nic_cpus_without_zero_core(pci_address):
-    local_cpu_list = _get_nic_cpu_list(pci_address)
-    if _is_first_core_zero(local_cpu_list):
-        local_cpu_list = _remove_first_core(local_cpu_list)
-    return local_cpu_list
-
-
-def _get_nic_cpu_list(pci_address):
-    DEVICE_PATH_FMT = '/sys/bus/pci/devices/{}'
-
-    local_cpulist = os.path.join(
-        DEVICE_PATH_FMT.format(pci_address), 'local_cpulist'
-    )
-    with open(local_cpulist) as f:
-        return f.read()
-
-
-def _is_first_core_zero(cores):
-    return cores[:1] == '0'
-
-
-def _remove_first_core(cores):
-    if cores[1] == '-':
-        return '1' + cores[1:]
-    elif cores[1] == ',':
-        return cores[2:]
-    else:
-        return ""
 
 
 def _get_default_kernel():
@@ -194,7 +157,7 @@ def _is_iommu_set():
 
 
 def _configure_kernel(pci_addresses):
-    cpu_list = _get_cpu_list(pci_addresses)
+    cpu_list = get_cpu_list(pci_addresses)
     default_kernel = _get_default_kernel()
 
     added_hugepages = _add_hugepages(default_kernel)
@@ -206,8 +169,6 @@ def _configure_kernel(pci_addresses):
 
 
 def main():
-    DPDK_DRIVERS = ('vfio-pci',)
-
     module = AnsibleModule(
         argument_spec=dict(
             pci_drivers=dict(default=None, type='dict', required=True)

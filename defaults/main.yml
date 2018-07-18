@@ -2,3 +2,4 @@
 configure_kernel: true
 bind_drivers: true
 set_ovs: true
+pmd_threads_count: 1

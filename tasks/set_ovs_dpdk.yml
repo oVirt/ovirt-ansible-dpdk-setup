@@ -1,0 +1,47 @@
+- name: populate ovs dpdk info
+  set_ovs_dpdk_facts:
+    pci_drivers: "{{ pci_drivers }}"
+    pmd_threads_count: "{{ pmd_threads_count }}"
+  register: ovs_facts
+
+- name: install openvswitch
+  package:
+    name: "openvswitch"
+    state: installed
+
+- name: set dpdk-init
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-init
+    value: true
+
+- name: set pmd-cpu-mask
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: pmd-cpu-mask
+    value: "{{ ovs_facts.pmd_cpu_mask }}"
+
+- name: set dpdk lcore mask
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-lcore-mask
+    value: "{{ ovs_facts.dpdk_lcores_mask }}"
+
+- name: set dpdk lcore mask
+  openvswitch_db:
+    table: open_vswitch
+    record: .
+    col: other_config
+    key: dpdk-socket-mem
+    value: "{{ ovs_facts.dpdk_socket_mem }}"
+
+- name: restart openvswitch service
+  service:
+    name: openvswitch
+    state: restarted

@@ -1,27 +1,9 @@
-- name: configure kernel
-  configure_kernel:
-    pci_drivers: "{{ pci_drivers }}"
+---
+- include_tasks: configure_kernel.yml
   when: configure_kernel == true
 
-- name: bind devices to drivers
-  bind_drivers:
-    pci_drivers: "{{ pci_drivers }}"
+- include_tasks: bind_drivers.yml
   when: bind_drivers == true
 
-- block:
-  - name: install openvswitch
-    package:
-      name: "openvswitch"
-      state: installed
-
-  - name: start ovs
-    service:
-      name: openvswitch
-      state: started
-
-  - name: set dpdk-socket-mem
-    command: "ovs-vsctl --no-wait set open_vswitch . other_config:dpdk-socket-mem=512"
-
-  - name: set dpdk init
-    command: "ovs-vsctl --no-wait set Open_vSwitch . other_config:dpdk-init=true"
-  when: set_ovs == true
+- include_tasks: set_ovs_dpdk.yml
+  when: set_ovs_dpdk == true
