@@ -21,6 +21,11 @@ Role Variables
 | configure_kernel        | true                  | Determines whether the kernel should be configured for DPDK usage. |
 | bind_drivers            | true                  | Determines whether drivers should be bound to the devices. |
 | set_ovs                 | true                  | Determines whether OVS should be configured and started. |
+| pmd_threads_count       | 1                     | Sets the amount of PMD threads per each DPDK compatible NIC |
+| nr_2mb_hugepages        | 1024                  | Sets the amount of 2MB hugepages to use, if 2MB hugepages are used |
+| nr_1gb_hugepages        | 4                     | Sets the amount of 1GB hugepages to use, if 1GB hugepages are used |
+| use_1gb_hugepages       | true                  | Determines whether 1GB hugepages should be used, if supported |
+
 
 
 Dependencies
