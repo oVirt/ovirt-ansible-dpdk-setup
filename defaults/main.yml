@@ -3,3 +3,6 @@ configure_kernel: true
 bind_drivers: true
 set_ovs: true
 pmd_threads_count: 1
+nr_2mb_hugepages: 1024
+nr_1gb_hugepages: 4
+use_1gb_hugepages: true

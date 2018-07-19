@@ -12,6 +12,9 @@
 - name: configure kernel
   configure_kernel:
     pci_drivers: "{{ pci_drivers }}"
+    use_1gb_hugepages: "{{ use_1gb_hugepages }}"
+    nr_1gb_hugepages: "{{ nr_1gb_hugepages }}"
+    nr_2mb_hugepages: "{{ nr_2mb_hugepages }}"
   register: configure_kernel
 
 - name: restart server

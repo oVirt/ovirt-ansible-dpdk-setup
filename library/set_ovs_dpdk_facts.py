@@ -120,14 +120,9 @@ def get_dpdk_lcores(pmd_cores, cpu_list):
 def get_socket_mem(nics_numa_info):
     socket_mem_list = []
     numa_nodes = list(nics_numa_info.keys())
-
-    for i in range(0, _get_numa_nodes_nr()):
-        if i in numa_nodes:
-            socket_mem_list.append('2048')
-        else:
-            socket_mem_list.append('1024')
-
-    return ','.join(socket_mem_list)
+    if len(numa_nodes) == 1:
+        return '1024'
+    return ','.join(['1024' for _ in range(numa_nodes)])
 
 
 def main():

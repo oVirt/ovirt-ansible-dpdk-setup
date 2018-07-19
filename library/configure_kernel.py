@@ -73,13 +73,41 @@ def _get_default_kernel():
     return proc.stdout.read().strip()
 
 
-def _add_hugepages(kernel):
-    if _current_hugepages():
-        return
+def _remove_stale_hugepages():
+    for arg in ('default_hugepagesz', 'hugepagesz', 'hugepages'):
+        while arg in _get_kernel_args():
+            proc = subprocess.Popen(
+                ['grubby',
+                 '--remove-args="{}"'.format(arg),
+                 '--update-kernel',
+                 _get_default_kernel()
+                ]
+            )
+            out, err = proc.communicate()
+            if err:
+                raise UpdateKernelError(out)
 
-    args = 'default_hugepagesz=2M hugepagesz=2M hugepages=1024'
+
+def _1gb_hugepages_are_supported():
+    with open('/proc/cpuinfo') as f:
+        return 'pdpe1gb' in f.read()
+
+
+def _add_hugepages(nr_2mb_hugepages, nr_1gb_hugepages, use_1gb_hugepages):
+    use_1gb_hugepages = _1gb_hugepages_are_supported() and use_1gb_hugepages
+    size = '1G' if use_1gb_hugepages else '2M'
+    amount = str(nr_1gb_hugepages) if use_1gb_hugepages \
+        else str(nr_2mb_hugepages)
+
+    if _current_hugepages(size, amount):
+        return False
+
+    _remove_stale_hugepages()
+    args = 'default_hugepagesz={} hugepagesz={} hugepages={}'.format(
+        size, size, amount
+    )
     proc = subprocess.Popen(['grubby', '--args="{}"'.format(args),
-                             '--update-kernel', kernel])
+                             '--update-kernel', _get_default_kernel()])
     out, err = proc.communicate()
     if err:
         raise UpdateKernelError(out)
@@ -112,14 +140,14 @@ def _change_isolated_cpus(cpu_list):
     return changed
 
 
-def _current_hugepages():
+def _current_hugepages(size, amount):
     kernel_args = _get_kernel_args()
     args_list = kernel_args.split()
 
     return all([
-        any([arg.startswith('hugepages=') for arg in args_list]),
-        any([arg.startswith('hugepagesz=') for arg in args_list]),
-        any([arg.startswith('default_hugepagesz=') for arg in args_list])
+        any([arg.startswith('hugepages=' + amount) for arg in args_list]),
+        any([arg.startswith('hugepagesz=' + size) for arg in args_list]),
+        any([arg.startswith('default_hugepagesz=' + size) for arg in args_list])
     ])
 
 
@@ -140,12 +168,12 @@ def _select_cpu_partitioning(cpu_list):
         raise SelectCpuPartitioningError(err)
 
 
-def _add_iommu(kernel):
+def _add_iommu():
     if _is_iommu_set():
         return False
 
     rc, _, err = exec_cmd(['grubby', '--args=iommu=pt intel_iommu=on',
-                           '--update-kernel={}'.format(kernel)])
+                           '--update-kernel={}'.format(_get_default_kernel())])
     if rc != 0:
         raise UpdateKernelError(err)
     return True
@@ -156,14 +184,16 @@ def _is_iommu_set():
     return 'iommu=pt' in kernel_args and 'intel_iommu=on' in kernel_args
 
 
-def _configure_kernel(pci_addresses):
+def _configure_kernel(
+        pci_addresses, nr_2mb_hugepages, nr_1gb_hugepages, use_1gb_hugepages):
     cpu_list = get_cpu_list(pci_addresses)
-    default_kernel = _get_default_kernel()
 
-    added_hugepages = _add_hugepages(default_kernel)
+    added_hugepages = _add_hugepages(
+        nr_2mb_hugepages, nr_1gb_hugepages, use_1gb_hugepages
+    )
     changed_isolated_cpus = _change_isolated_cpus(cpu_list)
     _select_cpu_partitioning(cpu_list)
-    added_iommu = _add_iommu(default_kernel)
+    added_iommu = _add_iommu()
 
     return any([added_hugepages, changed_isolated_cpus, added_iommu])
 
@@ -171,14 +201,22 @@ def _configure_kernel(pci_addresses):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            pci_drivers=dict(default=None, type='dict', required=True)
+            pci_drivers=dict(default=None, type='dict', required=True),
+            nr_2mb_hugepages=dict(default=None, type='int', required=True),
+            nr_1gb_hugepages=dict(default=None, type='int', required=True),
+            use_1gb_hugepages=dict(default=None, type='bool', required=True)
         )
     )
     pci_drivers = module.params.get('pci_drivers')
     pci_addresses = [addr for addr, driver in pci_drivers.iteritems()
                      if driver in DPDK_DRIVERS]
     try:
-        changed = _configure_kernel(pci_addresses)
+        changed = _configure_kernel(
+            pci_addresses,
+            module.params.get('nr_2mb_hugepages'),
+            module.params.get('nr_1gb_hugepages'),
+            module.params.get('use_1gb_hugepages')
+        )
     except Exception as e:
         module.fail_json(msg=str(e), exception=traceback.format_exc())
 
