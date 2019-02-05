@@ -55,8 +55,17 @@ def _get_numa_node(pci_address):
 
 
 def _range_to_list(core_list):
-    edges = core_list.rstrip().split('-')
-    return list(range(int(edges[0]), int(edges[1]) + 1))
+    core_list_set = set()
+    for range_groups in core_list.split(','):
+        sequential_cores = range_groups.split('-')
+        seq_start = int(sequential_cores[0])
+        seq_end = int(sequential_cores[1])+1
+        core_list_set.add(seq_start)
+        if not len(sequential_cores) == 1:
+            core_list_set.update(set(range(seq_start, seq_end)))
+    core_list_array = list(core_list_set)
+    core_list_array.sort()
+    return core_list_array
 
 
 def _list_from_string(str_list):
